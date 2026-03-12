@@ -33,30 +33,43 @@ Cryptopus is a decentralized marketplace where anyone can generate, publish, and
 
 ## 2. Functional Requirements
 
-### 2.1 MCP Server Generation
+### 2.1 API Wrapper Generation
 
 ```mermaid
 sequenceDiagram
     actor Creator
     participant UI as Generator UI
     participant LLM as Generator Agent (Gemini)
-    participant Chain as Blockchain (fork)
+    participant Sandbox as Sandbox iframe
 
     Creator->>UI: Submit protocol ABI + docs URL
-    UI->>LLM: Generate MCP server tools from ABI
-    LLM-->>UI: MCP server code (JavaScript)
-    UI->>Chain: Run smoke tests on forked mainnet
-    Chain-->>UI: Test results (pass/fail per tool)
-    UI-->>Creator: Preview server + test report
-    Creator->>UI: Refine / approve
+    UI->>LLM: Generate JavaScript API wrapper from ABI
+    LLM-->>UI: API wrapper module (ES module)
+    UI->>Sandbox: Load wrapper in isolated iframe
+    Sandbox-->>UI: Expose callable functions to chat UI
+    Creator->>UI: Test wrapper via chat (natural language)
+    UI->>LLM: Convert chat input to API wrapper calls
+    LLM-->>Sandbox: Execute wrapper function with params
+    Sandbox-->>UI: Return result / error
+    Creator->>UI: Iterate (refine wrapper) or approve
 ```
+
+The Generator Agent first produces a **JavaScript API wrapper** — a standalone ES module that wraps a protocol's on-chain interactions (reads and writes via ethers/viem). This wrapper is loaded dynamically into the Generator frontend inside a **sandboxed iframe**, enabling serverless real-time verification without a backend. Each generation attempt runs in its own iframe so multiple versions can be tested iteratively in isolation.
+
+For the PoC, a **chat UI** serves as the input interface: the Creator describes the call in natural language, the LLM converts it into the appropriate wrapper function call with parameters, and the result is displayed inline. This avoids building protocol-specific form UIs while still enabling structured interaction with the generated wrapper.
+
+Once the Creator approves the wrapper, a second generation step produces the final MCP server that delegates to the verified wrapper code.
 
 | ID | Requirement |
 |----|-------------|
 | F-GEN-1 | System accepts Solidity ABI JSON and optional documentation URL as input |
-| F-GEN-2 | Generator produces a valid MCP server with one tool per public write function and relevant read functions |
-| F-GEN-3 | Generated tools include parameter descriptions, type validation, and human-readable names |
-| F-GEN-4 | Creator can preview and manually edit generated code before publishing |
+| F-GEN-2 | Generator produces a JavaScript API wrapper (ES module) with one function per public write function and relevant read functions |
+| F-GEN-3 | Generated functions include parameter descriptions, type validation, and human-readable names |
+| F-GEN-4 | Wrapper is loaded dynamically into an isolated iframe for real-time in-browser testing |
+| F-GEN-5 | Chat UI allows Creator to test wrapper functions via natural language; the LLM translates input into wrapper calls with appropriate parameters |
+| F-GEN-6 | Multiple wrapper versions can be tested in parallel via separate iframe instances |
+| F-GEN-7 | Creator can preview and manually edit generated code before publishing |
+| F-GEN-8 | On approval, system generates the final MCP server that delegates to the verified API wrapper |
 
 ### 2.2 ERC-8004 Integration
 
