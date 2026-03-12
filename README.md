@@ -11,12 +11,12 @@ AI agents and assistants lack a trustworthy, standardized interface to interact 
 CryptoPotus lets anyone generate, test, publish, and monetize MCP server wrappers for any blockchain protocol. The best implementations rise to the top through on-chain reputation, and consumers (AI agents and humans) discover and pay for them via standard HTTP.
 
 ```mermaid
-graph LR
+graph TB
     A[Protocol Docs / ABI] -->|Generator Agent| B[MCP Server Draft]
     B -->|User Refinement| C[Tested MCP Server]
-    C -->|ERC-8004 Register| D[On-chain Agent Identity]
+    C -->|Register| D[ERC-8004 On-chain Agent Identity]
     D -->|x402 Gated| E[Hosted Endpoint]
-    E -->|Usage + Feedback| F[Reputation Score]
+    E -->|Feedback| F[ERC-8004 On-chain Reputation Score]
 ```
 
 ## Key Features
@@ -53,16 +53,6 @@ graph TB
     end
 ```
 
-## Hackathon Targets
-
-| Challenge | Prize | Fit |
-|-----------|-------|-----|
-| 🔐 Agents With Receipts — 8004 | $8,004 | Primary — uses all three ERC-8004 registries |
-| 🤖 Agent Only: Let the agent cook | $8,000 | Secondary — generator agent as autonomous system |
-| AI & Robotics Track | $6,000 | Track — agent coordination infrastructure |
-| Fresh Code | $5,000/slot | Category — new project |
-| Crypto Track | $6,000 | Track — new economic primitives |
-
 ## Tech Stack
 
 - **Smart Contracts**: Solidity (ERC-8004 registries on Ethereum/Base)
@@ -76,15 +66,15 @@ graph TB
 
 ```bash
 # Clone
-git clone https://github.com/user/cryptopotus
-cd cryptopotus
+git clone https://github.com/user/cryptopus
+cd cryptopus
 
 # Install
 npm install
 
 # Configure
 cp .env.example .env
-# Set: PRIVATE_KEY, RPC_URL, ANTHROPIC_API_KEY
+# Set required environment variables
 
 # Generate a wrapper
 npm run generate -- --protocol uniswap-v3 --abi ./abis/uniswap-v3.json
