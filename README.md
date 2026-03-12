@@ -1,4 +1,4 @@
-# 🐙 CryptoPotus
+# 🐙 Cryptopus
 
 A permissionless marketplace of vibe-coded community MCP servers for web3 protocols, powered by ERC-8004 trust infrastructure and x402 micropayments.
 
@@ -8,7 +8,7 @@ AI agents and assistants lack a trustworthy, standardized interface to interact 
 
 ## Solution
 
-CryptoPotus lets anyone generate, test, publish, and monetize MCP server wrappers for any blockchain protocol. The best implementations rise to the top through on-chain reputation, and consumers (AI agents and humans) discover and pay for them via standard HTTP.
+Cryptopus lets anyone generate, test, publish, and monetize MCP server wrappers for any blockchain protocol. The best implementations rise to the top through on-chain reputation, and consumers (AI agents and humans) discover and pay for them via standard HTTP.
 
 ```mermaid
 graph TB
