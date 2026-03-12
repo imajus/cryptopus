@@ -29,6 +29,7 @@ Cryptopus is a decentralized marketplace where anyone can generate, publish, and
 - Slashing / dispute resolution
 - Multi-chain registry deployment
 - Production-grade security audits
+- Generator Agent usage billing
 
 ## 2. Functional Requirements
 
@@ -115,3 +116,29 @@ graph TB
 3. **Payment**: An AI agent calling the MCP endpoint receives HTTP 402, pays via x402, and gets the response
 4. **Reputation**: After usage, feedback is recorded on-chain and visible in the marketplace UI
 5. **Validation**: At least one test transaction is recorded via ValidationRegistry before the agent appears as "validated" in the marketplace
+
+## 5 Out of PoC Scope
+
+### 5.1 Generator Agent Usage Billing
+
+```mermaid
+sequenceDiagram
+    actor Creator
+    participant UI as Generator UI
+    participant Wallet as Creator's Web3 Wallet
+    participant AgentWallet as Generator Agent Wallet
+    participant LLM as Generator Agent (Gemini)
+
+    Creator->>UI: Connect web3 wallet
+    UI->>Wallet: Request authentication signature
+    Wallet-->>UI: Signed auth message
+    Creator->>UI: Initiate USDC transfer
+    UI->>Wallet: Prompt USDC transfer to Agent Wallet
+    Wallet->>AgentWallet: Transfer USDC (prepaid balance)
+    AgentWallet-->>UI: Confirm deposit, show balance
+    Creator->>UI: Submit protocol ABI + docs URL
+    UI->>LLM: Generate MCP server (deduct usage from balance)
+    LLM-->>UI: MCP server code
+    UI-->>Creator: Updated balance + generated output
+    Note over UI,AgentWallet: When balance exhausted, UI prompts top-up
+```
