@@ -1,8 +1,8 @@
-# CryptoPotus — Requirements Document
+# Cryptopus — Requirements Document
 
 ## 1. Project Overview
 
-CryptoPotus is a decentralized marketplace where anyone can generate, publish, and monetize MCP (Model Context Protocol) server wrappers for blockchain protocols. Trust and quality are managed through ERC-8004's on-chain registries; monetization uses x402 pay-per-call micropayments.
+Cryptopus is a decentralized marketplace where anyone can generate, publish, and monetize MCP (Model Context Protocol) server wrappers for blockchain protocols. Trust and quality are managed through ERC-8004's on-chain registries; monetization uses x402 pay-per-call micropayments.
 
 ### 1.1 Personas
 
@@ -16,11 +16,11 @@ CryptoPotus is a decentralized marketplace where anyone can generate, publish, a
 
 **In scope:**
 - AI-assisted MCP server generation from protocol ABI/docs
-- ERC-8004 agent registration (Identity Registry)
-- On-chain reputation feedback (Reputation Registry)
-- Community validation via test transactions (Validation Registry)
-- x402 payment-gated hosted endpoints
-- Marketplace discovery UI
+- On-chain agent registration (ERC-8004 Identity Registry)
+- On-chain reputation feedback (ERC-8004 Reputation Registry)
+- Community validation via test transactions (ERC-8004 Validation Registry)
+- x402 payment-gated hosted endpoints (Coinbase facilitator)
+- Marketplace discovery web UI
 - 1–2 working protocol wrappers (Uniswap V3, Aave V3)
 
 **Out of scope (future work):**
@@ -100,7 +100,7 @@ sequenceDiagram
 ## 4. Acceptance Criteria (Hackathon Demo)
 
 ```mermaid
-graph LR
+graph TB
     A[Generate Uniswap MCP] --> B[Register as ERC-8004 Agent]
     B --> C[Deploy behind x402]
     C --> D[AI Agent discovers via registry]
