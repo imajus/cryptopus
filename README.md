@@ -56,8 +56,8 @@ graph TB
 ## Tech Stack
 
 - **Smart Contracts**: Solidity (ERC-8004 registries on Ethereum/Base)
-- **MCP Server Runtime**: TypeScript / Node.js
-- **Generator Agent**: LLM-powered (Claude API) with ABI parsing
+- **MCP Server Runtime**: JavaScript / Node.js
+- **Generator Agent**: LLM-powered (Gemini API) with ABI parsing
 - **Payments**: x402 protocol (Coinbase facilitator on Base)
 - **Storage**: IPFS for agent registration files and MCP server code
 - **Frontend**: React (marketplace UI)

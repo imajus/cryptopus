@@ -9,7 +9,7 @@ graph TB
     end
 
     subgraph "Backend Services"
-        GEN[Generator Service<br/>Node.js + Claude API]
+        GEN[Generator Service<br/>Node.js + Gemini API]
         HOST[MCP Host<br/>Express + x402 Middleware]
         IDX[Indexer<br/>ERC-8004 Event Listener]
     end
@@ -41,7 +41,7 @@ graph TB
 
 ### 2.1 Generator Service
 
-Transforms protocol ABIs into MCP-compliant TypeScript servers.
+Transforms protocol ABIs into MCP-compliant JavaScript servers.
 
 **Input:**
 ```json
@@ -62,14 +62,14 @@ Transforms protocol ABIs into MCP-compliant TypeScript servers.
 sequenceDiagram
     participant C as Creator
     participant G as Generator Service
-    participant LLM as Claude API
+    participant LLM as Gemini API
     participant F as Fork (Anvil)
 
     C->>G: POST /generate {abi, docsUrl, ...}
     G->>G: Parse ABI → extract functions, events, structs
     G->>LLM: Prompt with ABI summary + MCP template
-    LLM-->>G: MCP server TypeScript source
-    G->>G: Static validation (TypeScript compile check)
+    LLM-->>G: MCP server JavaScript source
+    G->>G: Static validation (lint + syntax check)
     G->>F: Spawn forked mainnet (anvil --fork-url)
     G->>F: Run smoke tests per tool
     F-->>G: Test results
@@ -78,13 +78,13 @@ sequenceDiagram
 
 **LLM Prompt Strategy:**
 
-The generator sends the Claude API a structured prompt containing:
+The generator sends the Gemini API a structured prompt containing:
 1. The parsed ABI with function signatures and NatSpec comments
-2. A base MCP server template (TypeScript)
+2. A base MCP server template (JavaScript ES modules)
 3. Protocol-specific context fetched from `docsUrl`
 4. Instructions to generate one MCP tool per meaningful contract function
 
-The output is a single TypeScript file that exports a valid MCP server. The prompt instructs the model to include parameter validation, human-readable tool descriptions, and sensible defaults (e.g., slippage tolerance for swaps).
+The output is a single JavaScript file that exports a valid MCP server. The prompt instructs the model to include parameter validation, human-readable tool descriptions, and sensible defaults (e.g., slippage tolerance for swaps).
 
 **Smoke Testing:**
 
@@ -99,19 +99,19 @@ Each generated server follows this layout:
 
 ```
 output/uniswap-v3/
-├── server.ts          # MCP server entry point
+├── server.js          # MCP server entry point
 ├── tools/
-│   ├── swap.ts        # exactInputSingle wrapper
-│   ├── quote.ts       # quoteExactInputSingle wrapper
-│   └── positions.ts   # LP position queries
+│   ├── swap.js        # exactInputSingle wrapper
+│   ├── quote.js       # quoteExactInputSingle wrapper
+│   └── positions.js   # LP position queries
 ├── abi.json           # Source ABI
-├── config.ts          # Contract addresses, chain config
+├── config.js          # Contract addresses, chain config
 └── agent.json         # ERC-8004 capability manifest
 ```
 
 **MCP Tool Definition Example:**
 
-```typescript
+```javascript
 {
   name: "uniswap_v3_swap_exact_input",
   description: "Swap an exact amount of input token for output token via Uniswap V3",
@@ -229,7 +229,7 @@ sequenceDiagram
 
 Each hosted MCP endpoint runs Express with x402 middleware.
 
-```typescript
+```javascript
 import { paymentMiddleware } from "@x402/express";
 
 app.use(paymentMiddleware({
@@ -322,7 +322,7 @@ graph LR
 | ERC-8004 Registries | Base mainnet (or Sepolia) | Use existing deployed singletons |
 | x402 Facilitator | Coinbase-hosted | Free tier: 1000 tx/month |
 | MCP Host + x402 | Single VPS or local | Express server |
-| Generator Service | Same VPS or local | Needs Claude API key |
+| Generator Service | Same VPS or local | Needs Gemini API key (free tier available) |
 | Indexer | Same VPS or local | SQLite backend |
 | Frontend | Vercel or local | Static React app |
 | IPFS | Pinata / web3.storage | Registration files + source code |
@@ -335,7 +335,7 @@ graph LR
 | `@modelcontextprotocol/sdk` | MCP server implementation | latest |
 | `viem` | Ethereum interactions + contract calls | ^2.x |
 | `@x402/express`, `@x402/core` | x402 payment middleware | latest |
-| `@anthropic-ai/sdk` | Claude API for code generation | latest |
+| `@google/genai` | Gemini API for code generation | latest |
 | `express` | HTTP server for MCP hosting | ^4.x |
 | `better-sqlite3` | Indexer storage | latest |
 | `wagmi` | Frontend wallet connection | ^2.x |
@@ -345,7 +345,7 @@ graph LR
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| LLM generates incorrect contract interactions | Fund loss in production (acceptable in PoC with test amounts) | Smoke tests on forked mainnet; ValidationRegistry gating; low-amount test-first UX |
+| LLM generates incorrect contract interactions | Fund loss in production (acceptable in PoC with test amounts) | Smoke tests on forked mainnet; ValidationRegistry gating; low-amount test-first UX; Claude API fallback for complex protocols (stretch goal) |
 | ERC-8004 registry gas costs on mainnet | High cost per registration | Deploy on Base (low gas) or use Sepolia for demo |
 | x402 facilitator downtime | Payments fail | Fallback: demo without payment gate; re-enable when facilitator is up |
 | MCP spec changes | Server incompatibility | Pin MCP SDK version |

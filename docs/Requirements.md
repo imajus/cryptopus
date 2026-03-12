@@ -23,7 +23,8 @@ Cryptopus is a decentralized marketplace where anyone can generate, publish, and
 - Marketplace discovery web UI
 - 1–2 working protocol wrappers (Uniswap V3, Aave V3)
 
-**Out of scope (future work):**
+**Out of scope (stretch goals / future work):**
+- Claude API fallback for complex protocol generation
 - Sophisticated AI correction chat loop
 - Slashing / dispute resolution
 - Multi-chain registry deployment
@@ -37,12 +38,12 @@ Cryptopus is a decentralized marketplace where anyone can generate, publish, and
 sequenceDiagram
     actor Creator
     participant UI as Generator UI
-    participant LLM as Generator Agent (LLM)
+    participant LLM as Generator Agent (Gemini)
     participant Chain as Blockchain (fork)
 
     Creator->>UI: Submit protocol ABI + docs URL
     UI->>LLM: Generate MCP server tools from ABI
-    LLM-->>UI: MCP server code (TypeScript)
+    LLM-->>UI: MCP server code (JavaScript)
     UI->>Chain: Run smoke tests on forked mainnet
     Chain-->>UI: Test results (pass/fail per tool)
     UI-->>Creator: Preview server + test report
@@ -94,7 +95,7 @@ sequenceDiagram
 | NF-2 | On-chain transactions target Ethereum mainnet or Base for ERC-8004 registries |
 | NF-3 | x402 payments settle on Base via Coinbase facilitator |
 | NF-4 | Agent registration files hosted on IPFS for censorship resistance |
-| NF-5 | Generator agent uses Claude API (claude-sonnet-4-20250514) |
+| NF-5 | Generator agent uses Gemini API (gemini-2.5-flash) via `@google/genai` SDK |
 | NF-6 | Hackathon PoC tolerates instability; production hardening is deferred |
 
 ## 4. Acceptance Criteria (Hackathon Demo)
