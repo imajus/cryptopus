@@ -58,8 +58,6 @@ The Generator Agent first produces a **JavaScript API wrapper** — a standalone
 
 For the PoC, a **chat UI** serves as the input interface: the Creator describes the call in natural language, the LLM converts it into the appropriate wrapper function call with parameters, and the result is displayed inline. This avoids building protocol-specific form UIs while still enabling structured interaction with the generated wrapper.
 
-Once the Creator approves the wrapper, a second generation step produces the final MCP server that delegates to the verified wrapper code.
-
 | ID | Requirement |
 |----|-------------|
 | F-GEN-1 | System accepts Solidity ABI JSON and optional documentation URL as input |
@@ -69,9 +67,40 @@ Once the Creator approves the wrapper, a second generation step produces the fin
 | F-GEN-5 | Chat UI allows Creator to test wrapper functions via natural language; the LLM translates input into wrapper calls with appropriate parameters |
 | F-GEN-6 | Multiple wrapper versions can be tested in parallel via separate iframe instances |
 | F-GEN-7 | Creator can preview and manually edit generated code before publishing |
-| F-GEN-8 | On approval, system generates the final MCP server that delegates to the verified API wrapper |
 
-### 2.2 ERC-8004 Integration
+### 2.2 MCP Server Publishing
+
+```mermaid
+sequenceDiagram
+    actor Creator
+    participant UI as Generator UI
+    participant Template as MCP Server Template
+    participant IPFS as IPFS
+    participant Host as Hosted Service
+
+    Creator->>UI: Approve verified API wrapper
+    UI->>Template: Inject wrapper into MCP server template (deterministic)
+    Template-->>UI: Complete MCP server project
+    UI->>IPFS: Push MCP server source + registration file
+    IPFS-->>UI: CID (content hash)
+    UI->>Host: Deploy MCP server instance
+    Host-->>UI: Hosted endpoint URL
+    Host->>Host: Enable x402 payment gate on endpoint
+    UI-->>Creator: Published endpoint + IPFS CID
+```
+
+Once the Creator approves the tested API wrapper, the system packages it into a **production MCP server** using a pre-built template. This step is **deterministic** — no LLM involvement — the wrapper is injected into a standard MCP server scaffold that exposes each wrapper function as an MCP tool.
+
+The resulting project is pushed to **IPFS** (source code under MIT license + ERC-8004 registration file), then deployed to the **hosted service** where the endpoint is gated with **x402 middleware** for pay-per-call access.
+
+| ID | Requirement |
+|----|-------------|
+| F-PUB-1 | On approval, the verified API wrapper is injected into a pre-built MCP server template (deterministic, no LLM) |
+| F-PUB-2 | MCP server project and ERC-8004 registration file are pushed to IPFS, producing a content-addressable CID |
+| F-PUB-3 | MCP server is deployed to the hosted service with x402 payment gate enabled on all tool endpoints |
+| F-PUB-4 | Creator receives the hosted endpoint URL and IPFS CID upon successful publishing |
+
+### 2.3 ERC-8004 Integration
 
 | ID | Requirement |
 |----|-------------|
@@ -82,7 +111,7 @@ Once the Creator approves the wrapper, a second generation step produces the fin
 | F-8004-5 | Before marketplace listing, MCP server must pass validation via Validation Registry (`validationRequest()` / `validationResponse()`) with at least N successful test transactions |
 | F-8004-6 | Marketplace displays agent reputation scores aggregated from on-chain feedback |
 
-### 2.3 x402 Monetization
+### 2.4 x402 Monetization
 
 | ID | Requirement |
 |----|-------------|
@@ -92,7 +121,7 @@ Once the Creator approves the wrapper, a second generation step produces the fin
 | F-PAY-4 | MCP server source code is open-source (MIT) on IPFS/GitHub; payment gate applies only to hosted instances |
 | F-PAY-5 | Feedback submitted with `proofOfPayment` (txHash) in off-chain feedback file receives higher trust weight in the UI |
 
-### 2.4 Marketplace & Discovery
+### 2.5 Marketplace & Discovery
 
 | ID | Requirement |
 |----|-------------|
